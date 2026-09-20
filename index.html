@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>STAGEWIRE — Wireless In-Ear Monitor</title>
+
+<!-- PWA: lets the phone's browser offer "Add to Home Screen / Install app",
+     so this opens full-screen without browser chrome, like a native app. -->
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22STAGEWIRE%20%E2%80%94%20Wireless%20In-Ear%20Monitor%22%2C%20%22short_name%22%3A%20%22STAGEWIRE%22%2C%20%22description%22%3A%20%22Transmitter/receiver%20wireless%20in-ear%20monitor%20P2P%20via%20jaringan%20WiFi%20lokal%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22scope%22%3A%20%22.%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22orientation%22%3A%20%22portrait%22%2C%20%22background_color%22%3A%20%22%230c0c0e%22%2C%20%22theme_color%22%3A%20%22%230c0c0e%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMWExYTFkIi8%2BPHJlY3QgeD0iMzgiIHk9Ijk4IiB3aWR0aD0iMjIiIGhlaWdodD0iNTQiIHJ4PSI1IiBmaWxsPSIjM2RkYzg0Ii8%2BPHJlY3QgeD0iNzMiIHk9IjYyIiB3aWR0aD0iMjIiIGhlaWdodD0iOTAiIHJ4PSI1IiBmaWxsPSIjZmZiMDIwIi8%2BPHJlY3QgeD0iMTA4IiB5PSI4MCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0iI2ZmYjAyMCIvPjxyZWN0IHg9IjE0MyIgeT0iMzgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMTQiIHJ4PSI1IiBmaWxsPSIjZmY0ZDRkIi8%2BPC9zdmc%2BCg%3D%3D%22%2C%20%22sizes%22%3A%20%22192x192%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%22%7D%2C%20%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMWExYTFkIi8%2BPHJlY3QgeD0iMzgiIHk9Ijk4IiB3aWR0aD0iMjIiIGhlaWdodD0iNTQiIHJ4PSI1IiBmaWxsPSIjM2RkYzg0Ii8%2BPHJlY3QgeD0iNzMiIHk9IjYyIiB3aWR0aD0iMjIiIGhlaWdodD0iOTAiIHJ4PSI1IiBmaWxsPSIjZmZiMDIwIi8%2BPHJlY3QgeD0iMTA4IiB5PSI4MCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0iI2ZmYjAyMCIvPjxyZWN0IHg9IjE0MyIgeT0iMzgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMTQiIHJ4PSI1IiBmaWxsPSIjZmY0ZDRkIi8%2BPC9zdmc%2BCg%3D%3D%22%2C%20%22sizes%22%3A%20%22512x512%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%22%7D%2C%20%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMWExYTFkIi8%2BPHJlY3QgeD0iMzgiIHk9Ijk4IiB3aWR0aD0iMjIiIGhlaWdodD0iNTQiIHJ4PSI1IiBmaWxsPSIjM2RkYzg0Ii8%2BPHJlY3QgeD0iNzMiIHk9IjYyIiB3aWR0aD0iMjIiIGhlaWdodD0iOTAiIHJ4PSI1IiBmaWxsPSIjZmZiMDIwIi8%2BPHJlY3QgeD0iMTA4IiB5PSI4MCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0iI2ZmYjAyMCIvPjxyZWN0IHg9IjE0MyIgeT0iMzgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMTQiIHJ4PSI1IiBmaWxsPSIjZmY0ZDRkIi8%2BPC9zdmc%2BCg%3D%3D%22%2C%20%22sizes%22%3A%20%22192x192%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22maskable%22%7D%5D%7D">
+<meta name="theme-color" content="#0c0c0e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="STAGEWIRE">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMWExYTFkIi8+PHJlY3QgeD0iMzgiIHk9Ijk4IiB3aWR0aD0iMjIiIGhlaWdodD0iNTQiIHJ4PSI1IiBmaWxsPSIjM2RkYzg0Ii8+PHJlY3QgeD0iNzMiIHk9IjYyIiB3aWR0aD0iMjIiIGhlaWdodD0iOTAiIHJ4PSI1IiBmaWxsPSIjZmZiMDIwIi8+PHJlY3QgeD0iMTA4IiB5PSI4MCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0iI2ZmYjAyMCIvPjxyZWN0IHg9IjE0MyIgeT0iMzgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMTQiIHJ4PSI1IiBmaWxsPSIjZmY0ZDRkIi8+PC9zdmc+Cg==">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMWExYTFkIi8+PHJlY3QgeD0iMzgiIHk9Ijk4IiB3aWR0aD0iMjIiIGhlaWdodD0iNTQiIHJ4PSI1IiBmaWxsPSIjM2RkYzg0Ii8+PHJlY3QgeD0iNzMiIHk9IjYyIiB3aWR0aD0iMjIiIGhlaWdodD0iOTAiIHJ4PSI1IiBmaWxsPSIjZmZiMDIwIi8+PHJlY3QgeD0iMTA4IiB5PSI4MCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjcyIiByeD0iNSIgZmlsbD0iI2ZmYjAyMCIvPjxyZWN0IHg9IjE0MyIgeT0iMzgiIHdpZHRoPSIyMiIgaGVpZ2h0PSIxMTQiIHJ4PSI1IiBmaWxsPSIjZmY0ZDRkIi8+PC9zdmc+Cg==">
 <style>
   :root{
     --bg-deep:#0c0c0e;
@@ -280,7 +291,7 @@
     display:flex; align-items:center; justify-content:center;
     margin:4px 0 2px;
   }
-  .qr-box canvas{display:block; width:100%; max-width:220px; height:auto; image-rendering:pixelated;}
+  .qr-box canvas{display:block; width:100%; max-width:260px; height:auto; image-rendering:pixelated;}
 
   /* manual fallback disclosure */
   details.manual{margin-top:8px;}
@@ -439,6 +450,7 @@
 
 <!-- QR generate/scan libraries — feature-detected below; app degrades to manual code
      entry automatically if these can't load (e.g. no internet on this local network). -->
+<script src="https://cdn.jsdelivr.net/npm/lz-string/libs/lz-string.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
 
@@ -457,13 +469,35 @@
   }
 
   // ---------- base64 helpers for SDP exchange codes ----------
+  // Type (offer/answer) is always known from context — TX only ever reads an
+  // answer, RX only ever reads an offer — so we skip the JSON wrapper and
+  // compress just the raw SDP. This alone often shrinks the code 40-60%
+  // versus the old base64(JSON) format, which means a noticeably less dense
+  // (easier to scan) QR code.
   function encodeDesc(desc){
-    const json = JSON.stringify({type:desc.type, sdp:desc.sdp});
-    return btoa(unescape(encodeURIComponent(json)));
+    const sdp = desc.sdp;
+    if(window.LZString){
+      return 'Z' + LZString.compressToEncodedURIComponent(sdp);
+    }
+    return 'B' + btoa(unescape(encodeURIComponent(sdp)));
   }
-  function decodeDesc(code){
-    const json = decodeURIComponent(escape(atob(code.trim())));
-    return JSON.parse(json);
+  function decodeDesc(code, type){
+    code = (code||'').trim();
+    const tag = code[0];
+    const payload = code.slice(1);
+    let sdp = null;
+    if(tag === 'Z'){
+      if(!window.LZString) throw new Error('Kode terkompresi, tapi dekompresor belum termuat');
+      sdp = LZString.decompressFromEncodedURIComponent(payload);
+    } else if(tag === 'B'){
+      sdp = decodeURIComponent(escape(atob(payload)));
+    } else {
+      // legacy format from an older version of this app (base64 JSON, no tag)
+      const json = JSON.parse(decodeURIComponent(escape(atob(code))));
+      return {type: json.type, sdp: json.sdp};
+    }
+    if(!sdp) throw new Error('Kode tidak valid atau rusak');
+    return {type, sdp};
   }
 
   // ---------- low-latency SDP tuning ----------
@@ -508,13 +542,15 @@
     }
     if(!qr) return false;
     const n = qr.getModuleCount();
-    const cell = Math.max(2, Math.floor(240/n));
-    canvas.width = canvas.height = cell*n;
+    const cell = Math.max(6, Math.floor(320/n));  // bigger modules = sharper edges for the camera to resolve
+    const quiet = cell * 4;                        // required blank border — scanners rely on this to find the code
+    const size = cell*n + quiet*2;
+    canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,size,size);
     ctx.fillStyle = '#111';
     for(let r=0;r<n;r++) for(let c=0;c<n;c++){
-      if(qr.isDark(r,c)) ctx.fillRect(c*cell, r*cell, cell, cell);
+      if(qr.isDark(r,c)) ctx.fillRect(quiet+c*cell, quiet+r*cell, cell, cell);
     }
     return true;
   }
@@ -923,7 +959,7 @@
   async function applyAnswerCode(dev, raw){
     if(!raw || !raw.trim()){ toast('Tempel atau pindai kode jawaban terlebih dahulu'); return; }
     try{
-      const answer = decodeDesc(raw);
+      const answer = decodeDesc(raw, 'answer');
       await dev.pc.setRemoteDescription(new RTCSessionDescription(answer));
       dev.statusEl.textContent = 'Menghubungkan…';
     }catch(err){ toast('Kode jawaban tidak valid'); }
@@ -1014,7 +1050,7 @@
   async function generateAnswerFromOffer(raw){
     if(!raw || !raw.trim()){ toast('Tempel atau pindai kode dari transmitter dahulu'); return; }
     let offer;
-    try{ offer = decodeDesc(raw); }
+    try{ offer = decodeDesc(raw, 'offer'); }
     catch(err){ toast('Kode tidak valid'); return; }
 
     if(RX.pc){ RX.pc.close(); }
