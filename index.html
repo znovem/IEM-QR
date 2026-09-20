@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STAGEWIRE — Wireless In-Ear Monitor</title>
+<style>
+  :root{
+    --bg-deep:#0c0c0e;
+    --metal-hi:#3a3a40;
+    --metal-mid:#28282c;
+    --metal-lo:#19191c;
+    --panel:#202024;
+    --panel-inset:#161618;
+    --seam:#050506;
+    --text-primary:#e9e7df;
+    --text-secondary:#8d8b88;
+    --text-dim:#57565a;
+    --amber:#ffb020;
+    --amber-dim:#5c4319;
+    --green:#3ddc84;
+    --green-dim:#173a28;
+    --red:#ff4d4d;
+    --red-dim:#4a1414;
+    --font-label:'Bahnschrift','SF Compact Text','Segoe UI Semibold',system-ui,sans-serif;
+    --font-mono:'SF Mono','Cascadia Mono','Consolas','Roboto Mono',monospace;
+    --font-body:-apple-system,'Segoe UI',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at 50% -10%, #1c1c20 0%, var(--bg-deep) 60%);
+    min-height:100vh;
+    color:var(--text-primary);
+    font-family:var(--font-body);
+    padding:18px 12px 60px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  ::selection{background:var(--amber);color:#1a1200;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  .rack{
+    max-width:460px;
+    margin:0 auto;
+    background:linear-gradient(180deg,var(--metal-hi) 0%, var(--metal-mid) 6%, var(--metal-lo) 100%);
+    border-radius:14px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.04) inset, 0 -1px 0 rgba(0,0,0,.6) inset;
+    padding:3px;
+    border:1px solid #000;
+  }
+  .rack-inner{
+    background:linear-gradient(180deg,#252529,#1a1a1d);
+    border-radius:11px;
+    overflow:hidden;
+    position:relative;
+    border:1px solid rgba(0,0,0,.6);
+  }
+
+  /* --- header / faceplate --- */
+  .plate-header{
+    position:relative;
+    padding:16px 22px 14px;
+    background:
+      repeating-linear-gradient(100deg, rgba(255,255,255,.02) 0px, rgba(255,255,255,.02) 1px, transparent 1px, transparent 3px),
+      linear-gradient(180deg,#2c2c30,#1f1f22);
+    border-bottom:1px solid var(--seam);
+  }
+  .rivet{
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #55555c, #0e0e10 75%);
+    box-shadow:0 1px 0 rgba(255,255,255,.06);
+  }
+  .rivet.tl{top:9px;left:9px;} .rivet.tr{top:9px;right:9px;}
+  .brand-row{display:flex; align-items:baseline; justify-content:space-between;}
+  .brand{
+    font-family:var(--font-label); font-weight:700; font-size:16.5px;
+    letter-spacing:.4px; color:var(--text-primary);
+  }
+  .brand small{
+    display:block; font-family:var(--font-mono); font-weight:400; font-size:9px;
+    letter-spacing:1px; color:var(--text-dim); margin-top:2px;
+  }
+  .model-tag{
+    font-family:var(--font-mono); font-size:10px; color:var(--text-dim);
+    letter-spacing:.5px; text-align:right; line-height:1.5;
+  }
+  .model-tag b{color:var(--text-secondary); font-weight:600;}
+
+  /* --- mode rocker switch --- */
+  .switch-wrap{margin-top:16px; display:flex; justify-content:center;}
+  .rocker{
+    position:relative; width:220px; height:46px;
+    background:var(--panel-inset);
+    border-radius:23px;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.7), inset 0 -1px 0 rgba(255,255,255,.03);
+    display:flex; padding:3px; cursor:pointer;
+    border:1px solid rgba(0,0,0,.6);
+  }
+  .rocker input{position:absolute; opacity:0; pointer-events:none;}
+  .rocker-label{
+    flex:1; z-index:1; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-label); font-weight:700; font-size:13px; letter-spacing:1.5px;
+    color:var(--text-dim); transition:color .25s ease; user-select:none;
+  }
+  .rocker-label.active-tx{color:#ffd9a0;}
+  .rocker-label.active-rx{color:#bdf5d8;}
+  .rocker-knob{
+    position:absolute; top:3px; left:3px; width:calc(50% - 3px); height:calc(100% - 6px);
+    border-radius:20px;
+    background:linear-gradient(180deg,#3a3a3f,#232326);
+    box-shadow:0 2px 4px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.4);
+    transition:transform .28s cubic-bezier(.5,0,.2,1), background .28s;
+    z-index:0;
+  }
+  .rocker-knob::after{
+    content:''; position:absolute; inset:0; border-radius:20px;
+    box-shadow:0 0 14px 1px var(--glow-color,transparent);
+    transition:box-shadow .28s;
+  }
+  .rocker[data-mode="tx"] .rocker-knob{transform:translateX(0); --glow-color:rgba(255,90,60,.35); background:linear-gradient(180deg,#4a2c22,#2a1712);}
+  .rocker[data-mode="rx"] .rocker-knob{transform:translateX(100%); --glow-color:rgba(61,220,132,.3); background:linear-gradient(180deg,#20372a,#152219);}
+
+  /* --- panel body --- */
+  .panel{padding:18px 18px 16px;}
+  .panel[hidden]{display:none;}
+
+  .card{
+    background:linear-gradient(180deg, var(--panel), #1b1b1e);
+    border:1px solid rgba(0,0,0,.5);
+    border-radius:9px;
+    padding:14px 15px;
+    margin-bottom:12px;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset;
+  }
+  .card-label{
+    font-family:var(--font-label); font-weight:600; font-size:10.5px; letter-spacing:1.2px;
+    color:var(--text-dim); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .hint{font-size:11.5px; color:var(--text-dim); line-height:1.5; margin-top:8px;}
+
+  /* LED dot */
+  .led{
+    width:9px; height:9px; border-radius:50%; display:inline-block; flex:none;
+    background:#2a2a2a; box-shadow:inset 0 0 2px rgba(0,0,0,.8);
+    transition:background .2s, box-shadow .2s;
+  }
+  .led.on-red{background:radial-gradient(circle at 35% 30%,#ff8a7a,var(--red) 70%); box-shadow:0 0 8px 1.5px rgba(255,77,77,.75);}
+  .led.on-amber{background:radial-gradient(circle at 35% 30%,#ffd489,var(--amber) 70%); box-shadow:0 0 8px 1.5px rgba(255,176,32,.7); animation:blink-amber 1s steps(1) infinite;}
+  .led.on-green{background:radial-gradient(circle at 35% 30%,#a6f4c9,var(--green) 70%); box-shadow:0 0 8px 1.5px rgba(61,220,132,.75);}
+  @keyframes blink-amber{0%,49%{opacity:1;}50%,100%{opacity:.35;}}
+
+  /* Row */
+  .row{display:flex; align-items:center; gap:10px;}
+  .row.between{justify-content:space-between;}
+  .readout-row{display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);}
+
+  /* LCD readout */
+  .lcd{
+    font-family:var(--font-mono); font-size:12.5px; color:#ffcd7a;
+    background:linear-gradient(180deg,#0f0d08,#161209);
+    border:1px solid #000; border-radius:5px; padding:8px 10px;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.8);
+    letter-spacing:.4px; word-break:break-all;
+  }
+
+  /* Buttons */
+  .btn{
+    font-family:var(--font-label); font-weight:700; font-size:12px; letter-spacing:.8px;
+    color:var(--text-primary); background:linear-gradient(180deg,#33333a,#232327);
+    border:1px solid rgba(0,0,0,.6); border-radius:7px; padding:11px 14px;
+    cursor:pointer; box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 2px 3px rgba(0,0,0,.4);
+    transition:transform .08s ease, background .15s;
+  }
+  .btn:active{transform:translateY(1px); box-shadow:0 1px 0 rgba(255,255,255,.03) inset;}
+  .btn:disabled{opacity:.35; cursor:not-allowed;}
+  .btn.block{width:100%;}
+  .btn.small{padding:7px 10px; font-size:10.5px;}
+  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,.12);}
+  .btn.danger{background:linear-gradient(180deg,#4a2222,#2c1414); border-color:#000;}
+
+  .btn-live{
+    width:100%; padding:16px; border-radius:9px; text-align:left;
+    display:flex; align-items:center; gap:12px;
+    background:linear-gradient(180deg,#2c2c30,#1c1c1f);
+    border:1px solid rgba(0,0,0,.6); cursor:pointer;
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset;
+  }
+  .btn-live .dot{width:14px; height:14px; border-radius:50%; background:#2a2a2a; flex:none; box-shadow:inset 0 0 3px #000;}
+  .btn-live.live .dot{background:radial-gradient(circle at 35% 30%,#ff8a7a,var(--red) 70%); box-shadow:0 0 12px 3px rgba(255,77,77,.8); animation:pulse-red 1.4s ease-in-out infinite;}
+  @keyframes pulse-red{0%,100%{box-shadow:0 0 10px 2px rgba(255,77,77,.7);}50%{box-shadow:0 0 18px 5px rgba(255,77,77,.95);}}
+  .btn-live .txt b{display:block; font-family:var(--font-label); font-size:13.5px; letter-spacing:.5px;}
+  .btn-live .txt span{display:block; font-size:10.5px; color:var(--text-dim); margin-top:1px; font-family:var(--font-mono);}
+  .btn-live.live .txt span{color:#ff9d8f;}
+
+  select, textarea, input[type=text]{
+    font-family:var(--font-mono); font-size:12px; color:var(--text-primary);
+    background:var(--panel-inset); border:1px solid rgba(0,0,0,.6); border-radius:6px;
+    padding:9px 10px; width:100%; resize:none;
+  }
+  textarea{min-height:58px; line-height:1.5;}
+  select{-webkit-appearance:none; appearance:none;}
+
+  /* segmented VU meter */
+  .meter{display:flex; gap:2.5px; height:26px; align-items:flex-end;}
+  .meter .seg{flex:1; height:100%; border-radius:1.5px; background:#232324; box-shadow:inset 0 0 0 1px rgba(0,0,0,.4); transition:background .05s linear;}
+  .meter .seg.g{background:#2e6b48;} .meter .seg.a{background:#8a651f;} .meter .seg.r{background:#7a2c2c;}
+
+  /* connected device row */
+  .device{
+    border:1px solid rgba(0,0,0,.5); border-radius:7px; padding:10px 12px; margin-top:8px;
+    background:linear-gradient(180deg,#1e1e21,#191919);
+  }
+  .device-head{display:flex; align-items:center; gap:8px; justify-content:space-between;}
+  .device-name{font-family:var(--font-label); font-weight:700; font-size:12px; letter-spacing:.4px;}
+  .device-status{font-family:var(--font-mono); font-size:10px; color:var(--text-dim); margin-top:2px;}
+  .device-meta{font-family:var(--font-mono); font-size:10px; color:var(--text-secondary); text-align:right;}
+  .device-body{margin-top:9px; display:flex; flex-direction:column; gap:6px;}
+
+  /* big RX status */
+  .rx-hero{display:flex; flex-direction:column; align-items:center; padding:22px 10px 18px;}
+  .power-led{
+    width:64px; height:64px; border-radius:50%; background:#1c1c1e;
+    box-shadow:inset 0 3px 8px rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.04);
+    display:flex; align-items:center; justify-content:center; margin-bottom:12px; position:relative;
+  }
+  .power-led .core{width:36px; height:36px; border-radius:50%; background:#2a2a2a; transition:background .3s, box-shadow .3s;}
+  .power-led.idle .core{background:#26262a;}
+  .power-led.connecting .core{background:radial-gradient(circle at 35% 30%,#ffd489,var(--amber) 75%); box-shadow:0 0 22px 6px rgba(255,176,32,.55); animation:blink-amber 0.9s steps(1) infinite;}
+  .power-led.connected .core{background:radial-gradient(circle at 35% 30%,#a6f4c9,var(--green) 75%); box-shadow:0 0 26px 7px rgba(61,220,132,.6);}
+  .power-led.error .core{background:radial-gradient(circle at 35% 30%,#ff8a7a,var(--red) 75%); box-shadow:0 0 22px 6px rgba(255,77,77,.55);}
+  .rx-status-txt{font-family:var(--font-label); font-weight:700; font-size:14px; letter-spacing:.6px;}
+  .rx-status-sub{font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim); margin-top:3px;}
+
+  /* fader */
+  .fader-wrap{display:flex; align-items:center; gap:16px;}
+  .fader-track{width:56px; height:150px; display:flex; align-items:center; justify-content:center;}
+  input[type=range].fader{
+    width:150px; height:56px; transform:rotate(-90deg); margin:0;
+    -webkit-appearance:none; appearance:none; background:transparent;
+  }
+  input[type=range].fader::-webkit-slider-runnable-track{
+    height:6px; border-radius:3px;
+    background:linear-gradient(90deg,#173a28,#3ddc84);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.6);
+  }
+  input[type=range].fader::-webkit-slider-thumb{
+    -webkit-appearance:none; width:34px; height:18px; border-radius:3px; margin-top:-6px;
+    background:linear-gradient(180deg,#4a4a50,#1e1e21);
+    border:1px solid #000; box-shadow:0 2px 3px rgba(0,0,0,.5);
+  }
+  input[type=range].fader::-moz-range-track{height:6px; border-radius:3px; background:linear-gradient(90deg,#173a28,#3ddc84);}
+  input[type=range].fader::-moz-range-thumb{width:34px; height:18px; border-radius:3px; background:linear-gradient(180deg,#4a4a50,#1e1e21); border:1px solid #000;}
+  .fader-col{display:flex; flex-direction:column; align-items:center; gap:10px;}
+  .fader-val{font-family:var(--font-mono); font-size:11px; color:var(--text-secondary);}
+
+  .toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(10px);
+    background:#1c1c1f; border:1px solid rgba(255,255,255,.12); color:var(--text-primary);
+    font-family:var(--font-label); font-size:12px; padding:10px 16px; border-radius:8px;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; z-index:50;
+    box-shadow:0 8px 20px rgba(0,0,0,.5);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .footer-strip{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 20px 14px; font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim);
+    letter-spacing:.5px; border-top:1px solid var(--seam);
+  }
+  .footer-strip .dot-sep{opacity:.5;}
+
+  /* QR code box */
+  .qr-box{
+    background:#fff; border-radius:8px; padding:10px;
+    display:flex; align-items:center; justify-content:center;
+    margin:4px 0 2px;
+  }
+  .qr-box canvas{display:block; width:100%; max-width:220px; height:auto; image-rendering:pixelated;}
+
+  /* manual fallback disclosure */
+  details.manual{margin-top:8px;}
+  details.manual summary{
+    font-family:var(--font-label); font-size:10.5px; letter-spacing:.6px; color:var(--text-dim);
+    cursor:pointer; list-style:none; user-select:none;
+  }
+  details.manual summary::-webkit-details-marker{display:none;}
+  details.manual summary::before{content:'▸ '; }
+  details.manual[open] summary::before{content:'▾ '; }
+  details.manual > *:not(summary){margin-top:8px;}
+
+  /* camera scan modal */
+  .scan-modal{
+    position:fixed; inset:0; z-index:100; background:rgba(5,5,6,.94);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; gap:16px;
+  }
+  .scan-modal[hidden]{display:none;}
+  .scan-box{
+    position:relative; width:min(280px,80vw); aspect-ratio:1/1; border-radius:14px; overflow:hidden;
+    background:#000; box-shadow:0 20px 50px rgba(0,0,0,.6);
+  }
+  .scan-box video{width:100%; height:100%; object-fit:cover;}
+  .scan-frame{
+    position:absolute; inset:14%; border:2px solid var(--amber); border-radius:10px;
+    box-shadow:0 0 0 999px rgba(0,0,0,.25); pointer-events:none;
+  }
+  .scan-status{font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); text-align:center; max-width:280px;}
+</style>
+</head>
+<body>
+
+<div class="rack">
+  <div class="rack-inner">
+
+    <div class="plate-header">
+      <span class="rivet tl"></span><span class="rivet tr"></span>
+      <div class="brand-row">
+        <div class="brand">STAGEWIRE
+          <small>WIRELESS IN&#8209;EAR MONITOR</small>
+        </div>
+        <div class="model-tag">MODEL <b>WM&#8209;1</b><br>LAN&nbsp;AUDIO&nbsp;LINK</div>
+      </div>
+
+      <div class="switch-wrap">
+        <div class="rocker" id="rocker" data-mode="tx" role="group" aria-label="Pilih mode perangkat">
+          <label class="rocker-label active-tx" id="lblTx" for="modeInput">TX</label>
+          <label class="rocker-label" id="lblRx" for="modeInput">RX</label>
+          <input type="checkbox" id="modeInput" aria-label="Mode RX aktif">
+          <div class="rocker-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TX PANEL ================= -->
+    <div class="panel" id="panelTx">
+
+      <button class="btn-live" id="btnLive">
+        <span class="dot"></span>
+        <span class="txt"><b id="liveLabel">Mulai Transmit</b><span id="liveSub">Mic belum aktif</span></span>
+      </button>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-label">LEVEL MIC<span id="micSelWrap"></span></div>
+        <select id="micSelect"></select>
+        <div class="meter" id="txMeter" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">ALAMAT PERANGKAT INI</div>
+        <div class="lcd" id="localAddr">mengambil alamat…</div>
+        <div class="hint">Alamat yang dipakai untuk pairing di jaringan lokal (bisa berupa IP atau nama mDNS, tergantung browser).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label row between">
+          <span>PERANGKAT TERHUBUNG</span>
+          <span class="readout-row" id="deviceCount">0 aktif</span>
+        </div>
+        <button class="btn block" id="btnAddDevice">+ Tambah Penerima</button>
+        <div id="deviceList"></div>
+      </div>
+    </div>
+
+    <!-- ================= RX PANEL ================= -->
+    <div class="panel" id="panelRx" hidden>
+
+      <div class="rx-hero">
+        <div class="power-led idle" id="rxLed"><div class="core"></div></div>
+        <div class="rx-status-txt" id="rxStatusTxt">Belum Terhubung</div>
+        <div class="rx-status-sub" id="rxStatusSub">Pindai kode dari transmitter</div>
+      </div>
+
+      <div class="card" id="rxPairCard">
+        <div class="card-label">SAMBUNG KE TRANSMITTER</div>
+        <button class="btn block" id="btnScanOffer">📷 Pindai Kode dari Transmitter</button>
+
+        <details class="manual" id="manualOfferDetails">
+          <summary>atau tempel kode manual</summary>
+          <textarea id="offerInput" placeholder="Tempel kode tautan (offer) di sini…"></textarea>
+          <button class="btn small block" id="btnGenAnswer">Buat Kode Jawaban</button>
+        </details>
+
+        <div id="answerBox" style="display:none; margin-top:12px;">
+          <div class="card-label">TUNJUKKAN KODE INI KE TRANSMITTER</div>
+          <div class="qr-box" id="answerQrBox"><canvas id="answerQr"></canvas></div>
+          <div class="hint">Minta transmitter memindai kode ini untuk menyelesaikan koneksi.</div>
+          <details class="manual">
+            <summary>atau salin kode manual</summary>
+            <textarea id="answerOutput" readonly></textarea>
+            <button class="btn small block" id="btnCopyAnswer">Salin Kode</button>
+          </details>
+        </div>
+      </div>
+
+      <div class="card" id="rxLiveCard" style="display:none;">
+        <div class="card-label row between">
+          <span>OUTPUT MONITOR</span>
+          <span class="readout-row" id="rxLatency">— ms</span>
+        </div>
+        <div class="fader-wrap">
+          <div class="fader-col">
+            <div class="fader-track"><input type="range" class="fader" id="volFader" min="0" max="100" value="80"></div>
+            <div class="fader-val"><span id="volVal">80</span>%</div>
+          </div>
+          <div style="flex:1;">
+            <div class="meter" id="rxMeter"></div>
+            <div class="row" style="margin-top:12px; gap:8px;">
+              <button class="btn small" id="btnMute">Bisukan</button>
+              <button class="btn small danger" id="btnDisconnect">Putuskan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <audio id="rxAudio" autoplay playsinline></audio>
+    </div>
+
+    <div class="footer-strip">
+      <span id="footModeLabel">MODE: TRANSMITTER</span>
+      <span>P2P · WEBRTC <span class="dot-sep">·</span> ZERO&#8209;LATENCY&nbsp;BUFFER</span>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="scan-modal" id="scanModal" hidden>
+  <div class="scan-box">
+    <video id="scanVideo" playsinline muted></video>
+    <div class="scan-frame"></div>
+  </div>
+  <div class="scan-status" id="scanStatus">Arahkan kamera ke kode QR…</div>
+  <button class="btn" id="scanCancelBtn">Batal</button>
+</div>
+
+<!-- QR generate/scan libraries — feature-detected below; app degrades to manual code
+     entry automatically if these can't load (e.g. no internet on this local network). -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+  const toastEl = $('toast');
+  let toastTimer;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2200);
+  }
+
+  // ---------- base64 helpers for SDP exchange codes ----------
+  function encodeDesc(desc){
+    const json = JSON.stringify({type:desc.type, sdp:desc.sdp});
+    return btoa(unescape(encodeURIComponent(json)));
+  }
+  function decodeDesc(code){
+    const json = decodeURIComponent(escape(atob(code.trim())));
+    return JSON.parse(json);
+  }
+
+  // ---------- low-latency SDP tuning ----------
+  // Shrinks Opus packetization time (default 20ms) down to 10ms and disables
+  // DTX/in-band FEC, which trade a little robustness for less per-packet delay.
+  function forceLowLatencySdp(sdp){
+    if(!sdp || !/opus\/48000/i.test(sdp)) return sdp;
+    let s = sdp;
+    s = /a=maxptime:\d+/.test(s) ? s.replace(/a=maxptime:\d+/i, 'a=maxptime:10')
+      : s.replace(/(a=rtpmap:\d+ opus\/48000(?:\/\d+)?\r?\n)/i, '$1a=maxptime:10\r\n');
+    s = /a=ptime:\d+/.test(s) ? s.replace(/a=ptime:\d+/i, 'a=ptime:10')
+      : s.replace(/(a=rtpmap:\d+ opus\/48000(?:\/\d+)?\r?\n)/i, '$1a=ptime:10\r\n');
+    // Match the fmtp line for the SAME payload type as the Opus rtpmap (via
+    // backreference), instead of just "the first fmtp line" — avoids silently
+    // tuning the wrong codec if the SDP ever orders things differently.
+    s = s.replace(/(a=rtpmap:(\d+) opus\/48000[^\r\n]*\r?\n)(a=fmtp:\2 )([^\r\n]*)/i,
+      (m, rtpmap, pt, fmtpPrefix, params)=>{
+        const parts = params.split(';').map(p=>p.trim()).filter(Boolean);
+        const set = (k,v)=>{
+          const i = parts.findIndex(p=>p.toLowerCase().startsWith(k+'='));
+          if(i>=0) parts[i] = k+'='+v; else parts.push(k+'='+v);
+        };
+        set('minptime','10');
+        set('useinbandfec','0');
+        set('usedtx','0');
+        return rtpmap + fmtpPrefix + parts.join(';');
+      });
+    return s;
+  }
+
+  // ---------- QR pairing (removes manual copy/paste of the code) ----------
+  // Falls back cleanly to the manual textarea flow if these libs failed to
+  // load (e.g. this local network has no internet for the CDN fetch).
+  const QR_AVAILABLE = (typeof window.qrcode === 'function' && typeof window.jsQR === 'function');
+
+  function drawQrToCanvas(canvas, text){
+    if(!canvas) return false;
+    let qr = null;
+    for(let type=4; type<=40; type++){
+      try{ const q = window.qrcode(type, 'L'); q.addData(text); q.make(); qr = q; break; }
+      catch(e){ /* data too long for this version, try a bigger one */ }
+    }
+    if(!qr) return false;
+    const n = qr.getModuleCount();
+    const cell = Math.max(2, Math.floor(240/n));
+    canvas.width = canvas.height = cell*n;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#111';
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+      if(qr.isDark(r,c)) ctx.fillRect(c*cell, r*cell, cell, cell);
+    }
+    return true;
+  }
+
+  const scanModal = $('scanModal');
+  const scanVideo = $('scanVideo');
+  const scanStatus = $('scanStatus');
+  const scanCancelBtn = $('scanCancelBtn');
+  const scanCanvas = document.createElement('canvas');
+  let activeScan = null;
+
+  function closeScanner(){
+    scanModal.hidden = true;
+    if(activeScan){ activeScan.stopped = true; activeScan.stream.getTracks().forEach(t=>t.stop()); activeScan = null; }
+    scanVideo.srcObject = null;
+  }
+  scanCancelBtn.addEventListener('click', closeScanner);
+
+  async function openScanner(onResult){
+    if(!QR_AVAILABLE){ toast('Pemindai QR tidak tersedia — gunakan kode manual'); return; }
+    scanModal.hidden = false;
+    scanStatus.textContent = 'Meminta izin kamera…';
+    let stream;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    }catch(err){
+      scanStatus.textContent = 'Tidak bisa mengakses kamera: ' + err.message;
+      return;
+    }
+    scanVideo.srcObject = stream;
+    await scanVideo.play().catch(()=>{});
+    scanStatus.textContent = 'Arahkan kamera ke kode QR…';
+    const state = {stopped:false, stream};
+    activeScan = state;
+    const ctx = scanCanvas.getContext('2d', {willReadFrequently:true});
+    function tick(){
+      if(state.stopped) return;
+      if(scanVideo.readyState >= scanVideo.HAVE_ENOUGH_DATA){
+        scanCanvas.width = scanVideo.videoWidth;
+        scanCanvas.height = scanVideo.videoHeight;
+        ctx.drawImage(scanVideo, 0, 0);
+        const img = ctx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+        const code = window.jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
+        if(code && code.data){
+          state.stopped = true;
+          closeScanner();
+          onResult(code.data);
+          return;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // wait until ICE gathering finishes so localDescription carries all candidates
+  function waitIceComplete(pc){
+    return new Promise(resolve=>{
+      if(pc.iceGatheringState === 'complete'){ resolve(); return; }
+      function check(){
+        if(pc.iceGatheringState === 'complete'){
+          pc.removeEventListener('icegatheringstatechange', check);
+          resolve();
+        }
+      }
+      pc.addEventListener('icegatheringstatechange', check);
+      // safety timeout in case gathering stalls
+      setTimeout(resolve, 4000);
+    });
+  }
+
+  function makeMeter(container, segments){
+    container.innerHTML = '';
+    const segs = [];
+    for(let i=0;i<segments;i++){
+      const s = document.createElement('div');
+      s.className = 'seg';
+      container.appendChild(s);
+      segs.push(s);
+    }
+    return segs;
+  }
+  function setMeter(segs, level){ // level 0..1
+    const lit = Math.round(level * segs.length);
+    segs.forEach((s,i)=>{
+      s.className = 'seg' + (i < lit ? (i < segs.length*0.7 ? ' g' : (i < segs.length*0.9 ? ' a' : ' r')) : '');
+    });
+  }
+
+  function attachLevelAnalyser(stream, onLevel){
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    // Metering is UI-only — kept light so it never competes with the real
+    // WebRTC audio path (which doesn't run through this context at all).
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.45;
+    src.connect(analyser);
+    const data = new Uint8Array(analyser.fftSize);
+    let raf, lastUi = 0;
+    const UI_INTERVAL = 1000/24; // ~24fps is plenty for a VU meter
+    function loop(now){
+      if(now - lastUi >= UI_INTERVAL){
+        analyser.getByteTimeDomainData(data);
+        let peak = 0;
+        for(let i=0;i<data.length;i++){
+          const v = Math.abs(data[i]-128)/128;
+          if(v>peak) peak = v;
+        }
+        onLevel(Math.min(1, peak*1.6));
+        lastUi = now;
+      }
+      raf = requestAnimationFrame(loop);
+    }
+    raf = requestAnimationFrame(loop);
+    return {ctx, stop(){cancelAnimationFrame(raf); try{src.disconnect();}catch(e){} try{analyser.disconnect();}catch(e){} ctx.close();}};
+  }
+
+  // ============================================================
+  // MODE SWITCH
+  // ============================================================
+  const modeInput = $('modeInput');
+  const rocker = $('rocker');
+  const panelTx = $('panelTx');
+  const panelRx = $('panelRx');
+  const lblTx = $('lblTx');
+  const lblRx = $('lblRx');
+  const footModeLabel = $('footModeLabel');
+
+  function setMode(rx){
+    modeInput.checked = rx;
+    rocker.dataset.mode = rx ? 'rx' : 'tx';
+    lblTx.classList.toggle('active-tx', !rx);
+    lblRx.classList.toggle('active-rx', rx);
+    panelTx.hidden = rx;
+    panelRx.hidden = !rx;
+    footModeLabel.textContent = 'MODE: ' + (rx ? 'RECEIVER' : 'TRANSMITTER');
+  }
+  modeInput.addEventListener('change', ()=> setMode(modeInput.checked));
+  lblTx.addEventListener('click', ()=> setMode(false));
+  lblRx.addEventListener('click', ()=> setMode(true));
+
+  // ============================================================
+  // LOCAL ADDRESS DISCOVERY
+  // ============================================================
+  function discoverLocalAddress(){
+    const el = $('localAddr');
+    try{
+      const pc = new RTCPeerConnection({iceServers:[]});
+      pc.createDataChannel('probe');
+      let found = false;
+      pc.onicecandidate = e=>{
+        if(!e.candidate){ if(!found) el.textContent = 'tidak terdeteksi (izinkan akses jaringan lokal)'; pc.close(); return; }
+        const m = /candidate:\S+ \d+ udp \d+ (\S+) (\d+)/.exec(e.candidate.candidate);
+        if(m && !found){
+          found = true;
+          el.textContent = m[1] + (m[1].endsWith('.local') ? '  (mDNS)' : '');
+        }
+      };
+      pc.createOffer().then(o=>pc.setLocalDescription(o)).catch(()=>{ el.textContent = 'tidak tersedia'; });
+    }catch(err){ el.textContent = 'tidak tersedia'; }
+  }
+  discoverLocalAddress();
+
+  // ============================================================
+  // TX — MIC / METER / LIVE TOGGLE
+  // ============================================================
+  const micSelect = $('micSelect');
+  const txMeterSegs = makeMeter($('txMeter'), 24);
+  const btnLive = $('btnLive');
+  const liveLabel = $('liveLabel');
+  const liveSub = $('liveSub');
+
+  const TX = {
+    stream:null,
+    analyser:null,
+    live:false,
+    devices:new Map(), // id -> {pc, card, statusEl, latEl, addrEl}
+    nextId:1
+  };
+
+  async function populateMics(){
+    try{
+      const list = await navigator.mediaDevices.enumerateDevices();
+      const mics = list.filter(d=>d.kind==='audioinput');
+      micSelect.innerHTML = '';
+      if(mics.length===0){
+        const o = document.createElement('option');
+        o.textContent = 'Tidak ada mic terdeteksi';
+        micSelect.appendChild(o);
+        return;
+      }
+      mics.forEach((d,i)=>{
+        const o = document.createElement('option');
+        o.value = d.deviceId;
+        o.textContent = d.label || ('Mikrofon ' + (i+1));
+        micSelect.appendChild(o);
+      });
+    }catch(err){ /* labels unavailable until permission granted; fine */ }
+  }
+  populateMics();
+
+  async function ensureLocalStream(){
+    if(TX.stream) return TX.stream;
+    const deviceId = micSelect.value || undefined;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio:{
+        deviceId: deviceId ? {exact:deviceId} : undefined,
+        echoCancellation:false,
+        noiseSuppression:false,
+        autoGainControl:false,
+        channelCount:{ideal:1, max:2},
+        sampleRate:{ideal:48000},
+        sampleSize:{ideal:16},
+        latency:{ideal:0}
+      }
+    });
+    stream.getAudioTracks().forEach(t=> t.enabled = false); // start muted until "live"
+    TX.stream = stream;
+    TX.analyser = attachLevelAnalyser(stream, lvl=> setMeter(txMeterSegs, TX.live ? lvl : 0));
+    populateMics();
+    return stream;
+  }
+
+  btnLive.addEventListener('click', async ()=>{
+    try{
+      await ensureLocalStream();
+    }catch(err){
+      toast('Tidak bisa mengakses mikrofon: ' + err.message);
+      return;
+    }
+    TX.live = !TX.live;
+    TX.stream.getAudioTracks().forEach(t=> t.enabled = TX.live);
+    btnLive.classList.toggle('live', TX.live);
+    liveLabel.textContent = TX.live ? 'Transmit Aktif' : 'Mulai Transmit';
+    liveSub.textContent = TX.live ? 'ON AIR — mengirim audio' : 'Mic dijeda';
+  });
+
+  micSelect.addEventListener('change', async ()=>{
+    if(!TX.stream) return;
+    // restart capture on new device, replacing tracks in all peer connections
+    const wasLive = TX.live;
+    TX.stream.getTracks().forEach(t=>t.stop());
+    if(TX.analyser) TX.analyser.stop();
+    TX.stream = null;
+    await ensureLocalStream();
+    TX.stream.getAudioTracks().forEach(t=> t.enabled = wasLive);
+    const newTrack = TX.stream.getAudioTracks()[0];
+    TX.devices.forEach(dev=>{
+      const sender = dev.pc.getSenders().find(s=>s.track && s.track.kind==='audio');
+      if(sender) sender.replaceTrack(newTrack);
+    });
+  });
+
+  // ---------- add receiver / device cards ----------
+  const deviceList = $('deviceList');
+  const deviceCount = $('deviceCount');
+
+  function refreshDeviceCount(){
+    let n = 0;
+    TX.devices.forEach(d=>{ if(d.connected) n++; });
+    deviceCount.textContent = n + (n===1?' aktif':' aktif');
+  }
+
+  $('btnAddDevice').addEventListener('click', async ()=>{
+    try{ await ensureLocalStream(); }
+    catch(err){ toast('Izinkan akses mikrofon terlebih dahulu'); return; }
+
+    const id = TX.nextId++;
+    const card = document.createElement('div');
+    card.className = 'device';
+    card.innerHTML =
+      '<div class="device-head">'+
+        '<div class="row" style="gap:8px;"><span class="led" data-led></span><div>'+
+          '<div class="device-name">Penerima '+id+'</div>'+
+          '<div class="device-status" data-status>Membuat kode tautan…</div>'+
+        '</div></div>'+
+        '<div class="device-meta" data-meta>— ms</div>'+
+      '</div>'+
+      '<div class="device-body" data-body></div>';
+    deviceList.appendChild(card);
+
+    const dev = {
+      pc:null, card, connected:false, statsTimer:null, failTimer:null,
+      statusEl: card.querySelector('[data-status]'),
+      ledEl: card.querySelector('[data-led]'),
+      metaEl: card.querySelector('[data-meta]'),
+      bodyEl: card.querySelector('[data-body]')
+    };
+    TX.devices.set(id, dev);
+    refreshDeviceCount();
+
+    await openDeviceLink(dev, id);
+  });
+
+  async function openDeviceLink(dev, id){
+    // (re)create a fresh peer connection and generate a new offer code for this device slot
+    if(dev.pc){ dev.pc.close(); }
+    clearInterval(dev.statsTimer);
+    clearTimeout(dev.failTimer);
+
+    const pc = new RTCPeerConnection({
+      iceServers:[],
+      bundlePolicy:'max-bundle',
+      rtcpMuxPolicy:'require'
+    });
+    dev.pc = pc;
+    dev.connected = false;
+    TX.stream.getAudioTracks().forEach(t=> pc.addTrack(t, TX.stream));
+
+    // Cap the encode bitrate so a busy/weak WiFi can't build up queueing
+    // delay trying to push more data than the link can clear in time.
+    try{
+      const sender = pc.getSenders().find(s=>s.track && s.track.kind==='audio');
+      if(sender && sender.getParameters && sender.setParameters){
+        const p = sender.getParameters();
+        if(p.encodings && p.encodings.length) p.encodings[0].maxBitrate = 128000;
+        await sender.setParameters(p);
+      }
+    }catch(e){ /* not all browsers expose this; harmless to skip */ }
+
+    dev.ledEl.className = 'led';
+    dev.statusEl.textContent = 'Membuat kode tautan…';
+    dev.metaEl.textContent = '— ms';
+
+    pc.onconnectionstatechange = ()=>{
+      if(pc.connectionState === 'connected'){
+        clearTimeout(dev.failTimer);
+        dev.connected = true;
+        dev.ledEl.className = 'led on-green';
+        dev.statusEl.textContent = 'Terhubung';
+      } else if(pc.connectionState === 'connecting'){
+        dev.ledEl.className = 'led on-amber';
+        dev.statusEl.textContent = 'Menghubungkan…';
+      } else if(pc.connectionState === 'failed' || pc.connectionState === 'disconnected'){
+        dev.connected = false;
+        dev.ledEl.className = 'led on-red';
+        dev.statusEl.textContent = pc.connectionState === 'failed' ? 'Gagal terhubung' : 'Sinyal terputus';
+        // don't stay stuck: offer an easy way to relink after a short grace period
+        clearTimeout(dev.failTimer);
+        dev.failTimer = setTimeout(()=>{
+          if(dev.pc && dev.pc.connectionState !== 'connected') showRelinkPrompt(dev, id);
+        }, pc.connectionState === 'failed' ? 800 : 4000);
+      }
+      refreshDeviceCount();
+    };
+
+    // stats polling for RTT + remote address
+    dev.statsTimer = setInterval(async ()=>{
+      if(!dev.pc || dev.pc.connectionState !== 'connected'){ return; }
+      try{
+        const stats = await dev.pc.getStats();
+        let rtt=null, remoteAddr=null;
+        stats.forEach(r=>{
+          if(r.type==='candidate-pair' && r.state==='succeeded' && r.nominated){
+            if(typeof r.currentRoundTripTime === 'number') rtt = r.currentRoundTripTime*1000;
+            const remote = stats.get(r.remoteCandidateId);
+            if(remote) remoteAddr = remote.address || remote.ip;
+          }
+        });
+        dev.metaEl.textContent = (rtt!==null? Math.round(rtt)+' ms' : '— ms') + (remoteAddr? ' · '+remoteAddr : '');
+      }catch(e){}
+    }, 1500);
+
+    // build offer
+    const offer = await pc.createOffer();
+    offer.sdp = forceLowLatencySdp(offer.sdp);
+    await pc.setLocalDescription(offer);
+    await waitIceComplete(pc);
+    const code = encodeDesc(pc.localDescription);
+
+    dev.bodyEl.innerHTML =
+      (QR_AVAILABLE ? '<div class="qr-box"><canvas data-qr></canvas></div>'+
+        '<div class="hint">Minta penerima memindai kode ini di panel RX-nya.</div>'+
+        '<button class="btn small block" data-scan-answer>📷 Pindai Jawaban dari Penerima</button>' : '')+
+      '<details class="manual"'+(QR_AVAILABLE?'':' open')+'>'+
+        '<summary>'+(QR_AVAILABLE?'atau tempel kode manual':'Kode tautan (bagikan ke penerima)')+'</summary>'+
+        '<textarea readonly data-offercode></textarea>'+
+        '<button class="btn small" data-copy>Salin Kode Tautan</button>'+
+        '<textarea placeholder="Tempel kode jawaban dari penerima…" data-answerin style="margin-top:2px;"></textarea>'+
+        '<button class="btn small block" data-connect>Sambungkan'+(QR_AVAILABLE?' (manual)':'')+'</button>'+
+      '</details>'+
+      '<button class="btn small ghost" data-remove style="margin-top:8px;">Hapus Perangkat</button>';
+
+    const offerTa = dev.bodyEl.querySelector('[data-offercode]');
+    offerTa.value = code;
+    offerTa.addEventListener('click', ()=> offerTa.select());
+    dev.statusEl.textContent = 'Bagikan kode ke perangkat penerima';
+
+    if(QR_AVAILABLE){
+      drawQrToCanvas(dev.bodyEl.querySelector('[data-qr]'), code);
+      dev.bodyEl.querySelector('[data-scan-answer]').addEventListener('click', ()=>{
+        openScanner(text=> applyAnswerCode(dev, text));
+      });
+    }
+    dev.bodyEl.querySelector('[data-copy]').addEventListener('click', ()=>{
+      offerTa.select();
+      copyText(code);
+    });
+    dev.bodyEl.querySelector('[data-connect]').addEventListener('click', ()=>{
+      applyAnswerCode(dev, dev.bodyEl.querySelector('[data-answerin]').value);
+    });
+    dev.bodyEl.querySelector('[data-remove]').addEventListener('click', ()=> removeDevice(dev, id));
+  }
+
+  async function applyAnswerCode(dev, raw){
+    if(!raw || !raw.trim()){ toast('Tempel atau pindai kode jawaban terlebih dahulu'); return; }
+    try{
+      const answer = decodeDesc(raw);
+      await dev.pc.setRemoteDescription(new RTCSessionDescription(answer));
+      dev.statusEl.textContent = 'Menghubungkan…';
+    }catch(err){ toast('Kode jawaban tidak valid'); }
+  }
+
+  function showRelinkPrompt(dev, id){
+    dev.bodyEl.innerHTML =
+      '<div class="hint">Koneksi tidak pulih otomatis — buat kode tautan baru dan pasangkan ulang di perangkat penerima.</div>'+
+      '<button class="btn small block" data-retry>Buat Kode Baru</button>'+
+      '<button class="btn small ghost" data-remove>Hapus Perangkat</button>';
+    dev.bodyEl.querySelector('[data-retry]').addEventListener('click', ()=> openDeviceLink(dev, id));
+    dev.bodyEl.querySelector('[data-remove]').addEventListener('click', ()=> removeDevice(dev, id));
+  }
+
+  function removeDevice(dev, id){
+    if(dev.pc) dev.pc.close();
+    clearInterval(dev.statsTimer);
+    clearTimeout(dev.failTimer);
+    TX.devices.delete(id);
+    dev.card.remove();
+    refreshDeviceCount();
+  }
+
+  function copyText(text){
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(()=>toast('Kode disalin')).catch(()=>toast('Ketuk kotak lalu salin manual'));
+    } else {
+      toast('Ketuk kotak teks lalu salin manual (clipboard perlu koneksi aman)');
+    }
+  }
+
+  // ============================================================
+  // RX — CONNECT TO TRANSMITTER
+  // ============================================================
+  const rxLed = $('rxLed');
+  const rxStatusTxt = $('rxStatusTxt');
+  const rxStatusSub = $('rxStatusSub');
+  const rxPairCard = $('rxPairCard');
+  const rxLiveCard = $('rxLiveCard');
+  const offerInput = $('offerInput');
+  const answerBox = $('answerBox');
+  const answerOutput = $('answerOutput');
+  const rxAudio = $('rxAudio');
+  const rxMeterSegs = makeMeter($('rxMeter'), 24);
+  const rxLatency = $('rxLatency');
+  const volFader = $('volFader');
+  const volVal = $('volVal');
+  const btnMute = $('btnMute');
+  const btnDisconnect = $('btnDisconnect');
+
+  if(!QR_AVAILABLE){
+    $('btnScanOffer').style.display = 'none';
+    $('manualOfferDetails').open = true;
+  }
+
+  let RX = {pc:null, analyser:null, statsTimer:null, muted:false};
+  let rxFailTimer = null;
+
+  function setRxState(state, sub){
+    rxLed.className = 'power-led ' + state;
+    const labels = {idle:'Belum Terhubung', connecting:'Menghubungkan…', connected:'Terhubung', error:'Gagal Terhubung'};
+    rxStatusTxt.textContent = labels[state] || state;
+    if(sub) rxStatusSub.textContent = sub;
+  }
+
+  function resetRx(msg){
+    if(RX.pc){ RX.pc.close(); RX.pc = null; }
+    if(RX.analyser){ RX.analyser.stop(); RX.analyser = null; }
+    clearInterval(RX.statsTimer);
+    clearTimeout(rxFailTimer);
+    rxAudio.srcObject = null;
+    setMeter(rxMeterSegs, 0);
+    rxLiveCard.style.display = 'none';
+    rxPairCard.style.display = 'block';
+    offerInput.value = '';
+    answerBox.style.display = 'none';
+    answerOutput.value = '';
+    setRxState('idle', msg || 'Pindai kode dari transmitter');
+  }
+
+  $('btnScanOffer').addEventListener('click', ()=>{
+    openScanner(text=>{
+      offerInput.value = text;
+      generateAnswerFromOffer(text);
+    });
+  });
+
+  async function generateAnswerFromOffer(raw){
+    if(!raw || !raw.trim()){ toast('Tempel atau pindai kode dari transmitter dahulu'); return; }
+    let offer;
+    try{ offer = decodeDesc(raw); }
+    catch(err){ toast('Kode tidak valid'); return; }
+
+    if(RX.pc){ RX.pc.close(); }
+    const pc = new RTCPeerConnection({
+      iceServers:[],
+      bundlePolicy:'max-bundle',
+      rtcpMuxPolicy:'require'
+    });
+    RX.pc = pc;
+    setRxState('connecting', 'Menunggu audio…');
+
+    pc.ontrack = (e)=>{
+      rxAudio.srcObject = e.streams[0];
+      rxAudio.muted = RX.muted;
+      rxAudio.volume = volFader.value/100;
+      rxAudio.play().catch(()=>{ toast('Ketuk layar untuk mengizinkan audio diputar'); });
+      if(RX.analyser) RX.analyser.stop();
+      RX.analyser = attachLevelAnalyser(e.streams[0], lvl=> setMeter(rxMeterSegs, lvl));
+      try{
+        pc.getReceivers().forEach(r=>{
+          // Small non-zero target: close to the theoretical minimum without
+          // being so aggressive it causes audible dropouts on a jittery WiFi.
+          if('jitterBufferTarget' in r) r.jitterBufferTarget = 0.005;
+          if('playoutDelayHint' in r) r.playoutDelayHint = 0;
+        });
+      }catch(err){}
+      rxLiveCard.style.display = 'block';
+    };
+
+    pc.onconnectionstatechange = ()=>{
+      if(pc.connectionState === 'connected'){
+        clearTimeout(rxFailTimer);
+        setRxState('connected', 'Menerima audio langsung');
+        rxPairCard.style.display = 'none';
+      } else if(pc.connectionState === 'connecting'){
+        setRxState('connecting', 'Menyambungkan…');
+      } else if(pc.connectionState === 'failed'){
+        setRxState('error', 'Koneksi gagal — menyiapkan pairing ulang…');
+        clearTimeout(rxFailTimer);
+        rxFailTimer = setTimeout(()=>{ if(pc.connectionState !== 'connected') resetRx('Koneksi gagal — pindai atau tempel kode baru'); }, 800);
+      } else if(pc.connectionState === 'disconnected'){
+        setRxState('error', 'Sinyal terputus, mencoba pulih…');
+        clearTimeout(rxFailTimer);
+        rxFailTimer = setTimeout(()=>{ if(pc.connectionState !== 'connected') resetRx('Koneksi terputus — pindai atau tempel kode baru'); }, 4000);
+      }
+    };
+
+    RX.statsTimer = setInterval(async ()=>{
+      if(pc.connectionState !== 'connected') return;
+      try{
+        const stats = await pc.getStats();
+        let rtt = null;
+        stats.forEach(r=>{
+          if(r.type==='candidate-pair' && r.state==='succeeded' && r.nominated && typeof r.currentRoundTripTime==='number'){
+            rtt = r.currentRoundTripTime*1000;
+          }
+        });
+        rxLatency.textContent = (rtt!==null ? Math.round(rtt)+' ms' : '— ms');
+      }catch(e){}
+    }, 1500);
+
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await pc.createAnswer();
+    answer.sdp = forceLowLatencySdp(answer.sdp);
+    await pc.setLocalDescription(answer);
+    await waitIceComplete(pc);
+    const answerCode = encodeDesc(pc.localDescription);
+    answerOutput.value = answerCode;
+    answerBox.style.display = 'block';
+    answerOutput.addEventListener('click', ()=> answerOutput.select());
+    if(QR_AVAILABLE) drawQrToCanvas($('answerQr'), answerCode);
+  }
+
+  $('btnGenAnswer').addEventListener('click', ()=> generateAnswerFromOffer(offerInput.value));
+
+  $('btnCopyAnswer').addEventListener('click', ()=>{
+    answerOutput.select();
+    copyText(answerOutput.value);
+  });
+
+  volFader.addEventListener('input', ()=>{
+    volVal.textContent = volFader.value;
+    rxAudio.volume = volFader.value/100;
+  });
+
+  btnMute.addEventListener('click', ()=>{
+    RX.muted = !RX.muted;
+    rxAudio.muted = RX.muted;
+    btnMute.textContent = RX.muted ? 'Suarakan' : 'Bisukan';
+  });
+
+  btnDisconnect.addEventListener('click', ()=> resetRx());
+
+})();
+</script>
+</body>
+</html>
