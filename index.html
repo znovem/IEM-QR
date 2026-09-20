@@ -646,7 +646,7 @@
     const analyser = ctx.createAnalyser();
     // Metering is UI-only — kept light so it never competes with the real
     // WebRTC audio path (which doesn't run through this context at all).
-    analyser.fftSize = 128;
+    analyser.fftSize = 64;
     analyser.smoothingTimeConstant = 0.05;
     src.connect(analyser);
     const data = new Uint8Array(analyser.fftSize);
@@ -867,7 +867,7 @@
       const sender = pc.getSenders().find(s=>s.track && s.track.kind==='audio');
       if(sender && sender.getParameters && sender.setParameters){
         const p = sender.getParameters();
-        if(p.encodings && p.encodings.length) p.encodings[0].maxBitrate = 64000;
+        if(p.encodings && p.encodings.length) p.encodings[0].maxBitrate = 32000;
         await sender.setParameters(p);
       }
     }catch(e){ /* not all browsers expose this; harmless to skip */ }
@@ -1073,7 +1073,7 @@
         pc.getReceivers().forEach(r=>{
           // Small non-zero target: close to the theoretical minimum without
           // being so aggressive it causes audible dropouts on a jittery WiFi.
-          if('jitterBufferTarget' in r) r.jitterBufferTarget = 0.0001;
+          if('jitterBufferTarget' in r) r.jitterBufferTarget = 0.000001;
           if('playoutDelayHint' in r) r.playoutDelayHint = 0;
         });
       }catch(err){}
